@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tirotejos a Catalunya 2026</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #fff; color: #111; padding: 1.5rem; max-width: 780px; margin: 0 auto; }
+  h1.titol { font-size: 18px; font-weight: 500; color: #111; margin: 0 0 1.5rem; line-height: 1.4; }
+  .subtitol { font-size: 13px; color: #666; margin-bottom: 1.5rem; }
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 2rem; }
+  @media (max-width: 520px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+  .kpi { border-radius: 8px; padding: 14px 12px; text-align: center; }
+  .kpi-n { font-size: 28px; font-weight: 500; line-height: 1; }
+  .kpi-l { font-size: 11px; margin-top: 5px; }
+  .sec-label { font-size: 11px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: #999; margin: 0 0 10px; }
+  .section { margin-bottom: 2.5rem; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+  .leg { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #666; }
+  .leg-sq { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .tl-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 0.5px solid #e5e5e5; }
+  .tl-date { font-size: 12px; color: #888; min-width: 50px; flex-shrink: 0; }
+  .tl-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .tl-place { font-size: 13px; color: #111; flex: 1; }
+  .tl-badge { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 5px; min-width: 72px; text-align: center; flex-shrink: 0; }
+  .footer { margin-top: 2rem; padding-top: 12px; border-top: 0.5px solid #e5e5e5; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .footer-text { font-size: 11px; color: #999; }
+</style>
+</head>
+<body>
+
+<h1 class="titol">Incidents amb armes de foc · 2026</h1>
+<p class="subtitol">Gener – juny · 15 incidents registrats a Catalunya</p>
+
+<div class="kpi-row">
+  <div class="kpi" style="background:#061B51;">
+    <div class="kpi-n" style="color:#3EFFD0;">15</div>
+    <div class="kpi-l" style="color:#3EFFD0;">Incidents</div>
+  </div>
+  <div class="kpi" style="background:#C55C5C;">
+    <div class="kpi-n" style="color:#fff;">4</div>
+    <div class="kpi-l" style="color:#fff;">Morts</div>
+  </div>
+  <div class="kpi" style="background:#FF6B00;">
+    <div class="kpi-n" style="color:#fff;">6</div>
+    <div class="kpi-l" style="color:#fff;">Ferits</div>
+  </div>
+  <div class="kpi" style="background:#00B7AC;">
+    <div class="kpi-n" style="color:#fff;">5</div>
+    <div class="kpi-l" style="color:#fff;">Sense v&iacute;ctimes</div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="sec-label">Incidents per mes</p>
+  <div class="legend">
+    <span class="leg"><span class="leg-sq" style="background:#C55C5C;"></span>Mort</span>
+    <span class="leg"><span class="leg-sq" style="background:#FF6B00;"></span>Ferit</span>
+    <span class="leg"><span class="leg-sq" style="background:#00B7AC;"></span>Sense ferits</span>
+  </div>
+  <div style="position:relative;width:100%;height:220px;">
+    <canvas id="cMes" role="img" aria-label="Incidents per mes de gener a juny 2026">Gener: 2, Mar&ccedil;: 1, Abril: 2, Maig: 6, Juny: 3 incidents.</canvas>
+  </div>
+</div>
+
+<div class="section">
+  <p class="sec-label">Resultat dels incidents</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;">
+    <div style="position:relative;height:200px;">
+      <canvas id="cDonut" role="img" aria-label="Distribuci&oacute; per resultat: 4 morts, 6 ferits, 5 sense v&iacute;ctimes">Morts 4, ferits 6, sense v&iacute;ctimes 5.</canvas>
+    </div>
+    <div id="donutLeg" style="font-size:13px;"></div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="sec-label">Cronologia &middot; lloc i resultat</p>
+  <div id="timeline"></div>
+</div>
+
+<div class="footer">
+  <div class="footer-text">Gr&agrave;fic: elaboraci&oacute; pr&ograve;pia a partir d&rsquo;ACN</div>
+  <a href="https://www.naciodigital.cat" target="_blank" rel="noopener">
+    <img src="data:image/png;base64,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" alt="Naci&oacute;Digital" style="height:32px;width:auto;display:block;" />
+  </a>
+</div>
+
+<script>
+const DEAD = '#C55C5C';
+const INJ  = '#FF6B00';
+const SAFE = '#00B7AC';
+
+const incidents = [
+  {date:'09 gen', place:'N-340 (Vila-seca)', dead:0, inj:2},
+  {date:'13 gen', place:'Sabadell', dead:0, inj:0},
+  {date:'15 mar', place:'Sant Roc (Badalona)', dead:0, inj:1},
+  {date:'07 abr', place:'Torre Romeu (Sabadell)', dead:0, inj:1},
+  {date:'14 abr', place:'Carrer Taulat (Barcelona–Sant Martí)', dead:1, inj:0},
+  {date:'04 mai', place:'La Torrassa (Hospitalet de Llobregat)', dead:0, inj:0},
+  {date:'12 mai', place:'La Mina (Sant Adrià de Besòs)', dead:0, inj:0},
+  {date:'16 mai', place:'Carrer Mineria (Barcelona–Zona Franca)', dead:1, inj:0},
+  {date:'17 mai', place:'Carrer Batllori, Sant Josep (Hospitalet de Llobregat)', dead:0, inj:0},
+  {date:'21 mai', place:'Can Puiggener (Sabadell)', dead:0, inj:1},
+  {date:'21 mai', place:'Viladecans', dead:0, inj:0},
+  {date:'30 mai', place:'Blocs Florida (Hospitalet de Llobregat)', dead:0, inj:1},
+  {date:'01 jun', place:'Sant Roc (Badalona)', dead:0, inj:1},
+  {date:'07 jun', place:'Carrer Mineria (Barcelona–Zona Franca)', dead:1, inj:0},
+  {date:'10 jun', place:'Carrer Balmes (Barcelona–Sant Gervasi)', dead:1, inj:0},
+];
+
+const monthLabels = ['Gen','Feb','Mar','Abr','Mai','Jun'];
+const mDead=[0,0,0,0,0,0], mInj=[0,0,0,0,0,0], mSafe=[0,0,0,0,0,0];
+const mIdx = {gen:0,mar:2,abr:3,mai:4,jun:5};
+incidents.forEach(i => {
+  const m = mIdx[i.date.split(' ')[1]];
+  if(i.dead>0) mDead[m]++;
+  else if(i.inj>0) mInj[m]++;
+  else mSafe[m]++;
+});
+
+const gridC = 'rgba(128,128,128,0.12)';
+const tickC = '#969696';
+
+new Chart(document.getElementById('cMes'), {
+  type:'bar',
+  data:{
+    labels:monthLabels,
+    datasets:[
+      {label:'Mort', data:mDead, backgroundColor:DEAD, borderRadius:3, stack:'s'},
+      {label:'Ferit', data:mInj, backgroundColor:INJ, borderRadius:3, stack:'s'},
+      {label:'Sense ferits', data:mSafe, backgroundColor:SAFE, borderRadius:3, stack:'s'}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{stacked:true, grid:{color:gridC}, ticks:{color:tickC}},
+      y:{stacked:true, beginAtZero:true, grid:{color:gridC}, ticks:{color:tickC, stepSize:1}}
+    }
+  }
+});
+
+new Chart(document.getElementById('cDonut'), {
+  type:'doughnut',
+  data:{
+    labels:['Morts','Ferits','Sense víctimes'],
+    datasets:[{data:[4,6,5], backgroundColor:[DEAD,INJ,SAFE], borderWidth:0, hoverOffset:5}]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}}
+  }
+});
+
+const legData = [{label:'Morts',val:4,col:DEAD},{label:'Ferits',val:6,col:INJ},{label:'Sense víctimes',val:5,col:SAFE}];
+const legEl = document.getElementById('donutLeg');
+legData.forEach(d => {
+  const pct = Math.round(d.val/15*100);
+  legEl.innerHTML += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+    <span style="width:12px;height:12px;border-radius:2px;background:${d.col};flex-shrink:0;"></span>
+    <span style="color:#111;">${d.label}</span>
+    <span style="margin-left:auto;font-weight:500;color:#111;">${d.val} <span style="font-weight:400;color:#888;">(${pct}%)</span></span>
+  </div>`;
+});
+
+const tl = document.getElementById('timeline');
+incidents.forEach(inc => {
+  let col = SAFE; let label = 'Sense ferits';
+  if(inc.dead>0){ col=DEAD; label='Mort'; }
+  else if(inc.inj>0){ col=INJ; label=`${inc.inj} ferit${inc.inj>1?'s':''}`; }
+  const bg = inc.dead>0 ? '#F5DADA' : inc.inj>0 ? '#FFE4CC' : '#C8F0ED';
+  const txtCol = inc.dead>0 ? '#7A1F1F' : inc.inj>0 ? '#7A3300' : '#065550';
+  const row = document.createElement('div');
+  row.className = 'tl-row';
+  row.innerHTML = `
+    <span class="tl-date">${inc.date}</span>
+    <span class="tl-dot" style="background:${col};"></span>
+    <span class="tl-place">${inc.place}</span>
+    <span class="tl-badge" style="background:${bg};color:${txtCol};">${label}</span>
+  `;
+  tl.appendChild(row);
+});
+
+let ultimaAltura = 0;
+function enviarAltura() {
+  // Mesurem NOMÉS el body (el contingut), no el documentElement.
+  const h = Math.ceil(document.body.getBoundingClientRect().height);
+  if (h === ultimaAltura) return;          // evita missatges redundants
+  ultimaAltura = h;
+  window.parent.postMessage({ tipus: 'resize-iframe-tirotejos', alçada: h }, '*');
+}
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(enviarAltura).observe(document.body);  // sense setTimeout
+} else {
+  window.addEventListener('load', enviarAltura);
+  window.addEventListener('resize', enviarAltura);
+}
+// Xarxa de seguretat per a assets que carreguen tard
+window.addEventListener('load', enviarAltura);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(enviarAltura);
+</script>
+</body>
+</html>
