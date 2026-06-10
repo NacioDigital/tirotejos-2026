@@ -202,6 +202,28 @@ if (typeof ResizeObserver !== 'undefined') {
 // Xarxa de seguretat per a assets que carreguen tard
 window.addEventListener('load', enviarAltura);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(enviarAltura);
+
+function enviarAltura() {
+  const altura = document.body.scrollHeight;
+  window.parent.postMessage(
+    { tipus: 'resize-iframe-tirotejos-2026', alçada: altura },
+    '*'
+  );
+}
+
+window.addEventListener('load', enviarAltura);
+window.addEventListener('resize', enviarAltura);
+
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.tipus === 'request-resize') {
+    enviarAltura();
+  }
+});
+
+const observer = new ResizeObserver(enviarAltura);
+observer.observe(document.body);
+
+ 
 </script>
 </body>
 </html>
